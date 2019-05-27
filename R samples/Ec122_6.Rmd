@@ -1,0 +1,92 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+data = read.table("cps4_small.dat")
+y = data[,1]
+educ = data[,2]
+exper = data[,3]
+fit = lm(y~educ+exper+exper^2 + (exper*educ))
+summary(fit)
+res = resid(fit)
+res
+X <- model.matrix(fit)
+n <- dim(X)[1]
+k <- dim(X)[2]
+se <- sqrt(diag(solve(crossprod(X)) * as.numeric(crossprod(resid(fit))/(n-k))))
+summary(fit)
+A <- matrix(resid(fit))
+B <- t(X) %*% diag(diag(crossprod(t(A)))) %*% X
+dfc <- n/(n-k)
+se <- sqrt(dfc*diag(solve(crossprod(X)) %*% B %*% solve(crossprod(X))))
+se
+
+married = data[,4]
+fit2 = lm(y~educ+exper+exper^2 + (exper*educ) + married)
+summary(fit2)
+
+X <- model.matrix(fit2)
+n <- dim(X)[1]
+k <- dim(X)[2]
+A <- matrix(resid(fit2))
+B <- t(X) %*% diag(diag(crossprod(t(A)))) %*% X
+dfc <- n/(n-k)
+se <- sqrt(dfc*diag(solve(crossprod(X)) %*% B %*% solve(crossprod(X))))
+se
+plot(married, fit2$resid, xlab = "married status", ylab = "residuals")
+
+marrdata <- data[which(data$V5==1),]
+marrdata
+nomarrdata <- data[which(data$V5==0),]
+nomarrdata
+my = marrdata[,1]
+meduc = marrdata[,2]
+mexper = marrdata[,3]
+fit3 = lm(my~meduc+mexper+mexper^2 + (mexper*meduc))
+res = resid(fit3)
+X <- model.matrix(fit3)
+n <- dim(X)[1]
+k <- dim(X)[2]
+A <- matrix(resid(fit3))
+B <- t(X) %*% diag(diag(crossprod(t(A)))) %*% X
+dfc <- n/(n-k)
+se <- sqrt(dfc*diag(solve(crossprod(X)) %*% B %*% solve(crossprod(X))))
+se
+summary(fit3)
+ny = nomarrdata[,1]
+neduc = nomarrdata[,2]
+nexper = nomarrdata[,3]
+fit4 = lm(ny~neduc+nexper+nexper^2 + (nexper*neduc))
+res = resid(fit4)
+X <- model.matrix(fit4)
+n <- dim(X)[1]
+k <- dim(X)[2]
+A <- matrix(resid(fit4))
+B <- t(X) %*% diag(diag(crossprod(t(A)))) %*% X
+dfc <- n/(n-k)
+se <- sqrt(dfc*diag(solve(crossprod(X)) %*% B %*% solve(crossprod(X))))
+se
+summary(fit4)
+
+out <- mvrnorm(4000, mu = c(0,1), Sigma = matrix(c(1,-.5,-.5,1), ncol = 2),
+empirical = TRUE)
+x = out[,1]
+z = out[,2]
+y = 2 + 2*as.vector(x) + 2*as.vector(z) + as.vector(eps)
+fit5 = lm(y~x+z)
+summary(fit5)
+fit5 = lm(y~x)
+summary(fit5)
+
+
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).

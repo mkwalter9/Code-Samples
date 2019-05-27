@@ -1,0 +1,32 @@
+
+---
+title: "Ec122_HmwkCh10"
+output: html_document
+---
+
+data = read.table("mroz.dat")
+yrdata <- data[which(data$V7==1),]
+
+hours = yrdata[,8]
+kidsl6 = yrdata[,9]
+kids618 = yrdata[,10]
+age = yrdata[,11]
+educ = yrdata[,12]
+wage = yrdata[,13]
+faminc = yrdata[,19]
+nwifeinc = faminc - wage*hours
+exper = yrdata[,25]
+
+haus1 = lm(log(wage)~educ+age+kidsl6+kids618+nwifeinc+exper + (exper*exper))
+summary(haus1)
+vest = haus1$residuals
+wageln = log(wage)
+haus2 = lm(hours~wageln+educ+age+kidsl6+kids618+nwifeinc+vest)
+summary(haus2)
+
+haus1joint = lm(log(wage)~educ+age+kidsl6+kids618+nwifeinc)
+SSRu = sum(vest*vest)
+vester = haus1joint$residuals
+SSRr = sum(vester*vester)
+F = ((SSRr-SSRu)/2)/(SSRu/(428-10))
+
